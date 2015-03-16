@@ -88,9 +88,7 @@
     [self swapPlayers];
     
     if ([self.currentPlayer isEqual:self.playerComputer] && self.shouldContinueGame) {
-        [self.playerComputer performSelector:@selector(takeTurn)
-                                  withObject:nil
-                                  afterDelay:0.5];
+        [self.playerComputer takeTurn];
     }
 }
 

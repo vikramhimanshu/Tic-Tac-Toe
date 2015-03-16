@@ -36,6 +36,13 @@
 
 -(void)takeTurn
 {
+    [self performSelector:@selector(takeTurnInternal)
+               withObject:nil
+               afterDelay:0.5];
+}
+
+- (void)takeTurnInternal
+{
     SymbolCell *lastMove = nil;
     if ([self.delegate respondsToSelector:@selector(lastMoveInGame)]) {
         lastMove = [self.delegate lastMoveInGame];
