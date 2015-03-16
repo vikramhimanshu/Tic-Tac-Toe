@@ -14,5 +14,6 @@
 
 - (instancetype)initWithStrategy:(TicTacToeStrategy *)strategy;
 
+- (void)cleanup;
 
 @end

@@ -206,9 +206,11 @@
 
 - (void)markCell:(SymbolCell *)cell withSymbol:(Symbol)symbol
 {
-    [cell updateCellWithSymbol:symbol];
-    [self evaluateBoardForStatus];
-    [self boardDidChangeWithMove:cell];
+    if ([cell isAvailable]) {
+        [cell updateCellWithSymbol:symbol];
+        [self evaluateBoardForStatus];
+        [self boardDidChangeWithMove:cell];
+    }
 }
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
@@ -239,7 +241,7 @@
         rowCount = 0;
     }
 
-    NSLog(@"{Row: %ld----Section: %ld}",(long)cell.location.row,(long)cell.location.section);
+//    NSLog(@"{Row: %ld----Section: %ld}",(long)cell.location.row,(long)cell.location.section);
     [self.allCellsArray addObject:cell];
     return cell;
 }
@@ -299,14 +301,14 @@
                 [winningRowsO addObject:row];
             }
         } else {
-            NSLog(@"%@ is full, removing it from the check",row);
+//            NSLog(@"%@ is full, removing it from the check",row);
             [completedRows addObject:row];
             if (markedCountO == 3) {
-                NSLog(@"SymbolO Wins");
+//                NSLog(@"SymbolO Wins");
                 [self boardDidDetectWinInRow:row forSymbol:SymbolO];
                 return;
             } else if (markedCountX == 3) {
-                NSLog(@"SymbolX Wins");
+//                NSLog(@"SymbolX Wins");
                 [self boardDidDetectWinInRow:row forSymbol:SymbolX];
                 return;
             }
@@ -322,13 +324,13 @@
     int winningRowsCountX = [winningRowsO count];
     int winningRowsCountO = [winningRowsX count];
     if (winningRowsCountO>0) {
-        NSLog(@"Fork detected for SymbolO");
+//        NSLog(@"Fork detected for SymbolO");
         [self boardDidDetectBlockInRows:winningRowsO forSymbol:SymbolO];
         if (winningRowsCountO>1) {
             [self boardDidDetectForkInRows:winningRowsO forSymbol:SymbolO];
         }
     } else if (winningRowsCountX>0) {
-        NSLog(@"Fork detected for SymbolX");
+//        NSLog(@"Fork detected for SymbolX");
         [self boardDidDetectBlockInRows:winningRowsX forSymbol:SymbolX];
         if (winningRowsCountX>1) {
             [self boardDidDetectForkInRows:winningRowsX forSymbol:SymbolX];

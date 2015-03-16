@@ -19,5 +19,6 @@
 - (SymbolCell *)nextMoveForCurrentOpponentMove:(SymbolCell *)cell;
 
 - (void)setPlayerSymbols:(Symbol)opponenet mySymbol:(Symbol)my;
+- (void)cleanup;
 
 @end

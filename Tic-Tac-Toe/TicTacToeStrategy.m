@@ -15,10 +15,27 @@
 @property (nonatomic, strong) Board *board;
 @property Symbol opponenetSymbol;
 @property Symbol mySymbol;
+@property (nonatomic)  NSMutableArray *rowsToCheck;
 
 @end
 
 @implementation TicTacToeStrategy
+
+-(NSMutableArray *)rowsToCheck
+{
+    if (_rowsToCheck == nil) {
+        _rowsToCheck = [@[KeyRowTop,KeyRowMiddle,KeyRowBottom,
+                          KeyRowLeft,KeyRowRight,KeyRowCenter,
+                          KeyRowDiagonal1,KeyRowDiagonal2] mutableCopy];
+    }
+    return _rowsToCheck;
+}
+
+- (void)cleanup
+{
+    [self.rowsToCheck removeAllObjects];
+    self.rowsToCheck = nil;
+}
 
 - (instancetype)initWithBoard:(Board *)board;
 {
@@ -38,58 +55,90 @@
 - (SymbolCell *)nextMoveForCurrentOpponentMove:(SymbolCell *)cell
 {
     if (cell == nil) { //Computer is playing first
-        [self.board center]; //open with center
+        return [self.board center]; //open with center
     }
-    SymbolCell *nextMove = [self attemptWiningMove:cell];
-    
+    SymbolCell *nextMove = [self evaluateBoardForStatusWithOpponentMove:cell];
     return nextMove;
 }
 
-- (SymbolCell *)evaluateCurrentMove:(SymbolCell *)currentCell
+#warning refactor this to share it with board
+- (SymbolCell *)evaluateBoardForStatusWithOpponentMove:(SymbolCell *)cell
 {
-    NSMutableArray *winningRow = [NSMutableArray array];
+    NSMutableArray *winningRowsAI = [NSMutableArray array];
+    NSMutableArray *winningRowsOpponent = [NSMutableArray array];
     NSMutableArray *availableMoves = [NSMutableArray array];
-    NSArray *affectedRows = [self.board rowsForCellAtIndex:currentCell.tag];
-    for (NSString *row in affectedRows)
+    NSMutableArray *completedRows = [NSMutableArray array];
+    
+    for (NSString *row in self.rowsToCheck)
     {
         NSArray *cells = [self.board cellsForRow:row];
-        int markedCount = 0;
+        int markedCountAI = 0;
+        int markedCountOpponent = 0;
         int availableCount = 0;
         for (SymbolCell *cell in cells)
         {
-            if ([cell isAvailable]) availableCount++;
             if (cell.currentSymbol == self.opponenetSymbol) {
-                markedCount++;
-            } else if ([cell isAvailable]) {
+                markedCountOpponent++;
+            } else if (cell.currentSymbol == self.mySymbol) {
+                markedCountAI++;
+            } else {
+                availableCount++;
                 [availableMoves addObject:cell];
             }
         }
-        if (markedCount>1) {
-            if (markedCount == 3) {
-//                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"You Win!"
-//                                                                message:nil
-//                                                               delegate:nil
-//                                                      cancelButtonTitle:@"OK"
-//                                                      otherButtonTitles:nil];
-//                [alert show];
-            } else if (availableCount) {
-                [winningRow addObject:row];
-            } else if (availableCount == 0){
-                NSLog(@"%@ is full",row);
+        if (availableCount) {
+            if (markedCountAI>1) {
+                [winningRowsAI addObject:row];
+            } else if (markedCountOpponent>1) {
+                [winningRowsOpponent addObject:row];
+            }
+        } else {
+            NSLog(@"\n%@ is full, removing it from the check\n",row);
+            [completedRows addObject:row];
+            if (markedCountOpponent == 3) {
+                NSLog(@"\n###Opponent Wins\n");
+                [self cleanup];
+                return nil;
+            } else if (markedCountAI == 3) {
+                NSLog(@"\n###AI Wins\n");
+                [self cleanup];
+                return nil;
             }
         }
     }
     
-    if ([winningRow count]) {
-        availableMoves = [self resetAvailableMovesForWinningRows:winningRow];
-        return [self playBlockingMoveFromAvailableMoves:availableMoves forCurrentMove:currentCell];
-    } else {
-        return [self playNextMoveFromAvailableMoves:availableMoves forCurrentMove:currentCell];
+    if ([availableMoves count] == 0) {
+        NSLog(@"\n###Game Draw\n");
+        [self cleanup];
+        return nil;
+    } else if ([availableMoves count] == 1) {
+        return [self playFromAvailableMoves:availableMoves];
     }
-    return nil;
+
+    [self.rowsToCheck removeObjectsInArray:completedRows];
+    
+    int winningRowsCountOpp = [winningRowsOpponent count];
+    int winningRowsCountAI = [winningRowsAI count];
+    if (winningRowsCountAI>0) {
+        if (winningRowsCountAI>1) {
+            NSLog(@"\n**AI managed to create a fork. Opponent Looses.\n");
+        }
+        NSLog(@"\n**Play The Winning Move\n");
+        availableMoves = [self resetAvailableMovesForRows:winningRowsAI];
+        return [self playFromAvailableMoves:availableMoves];
+    } else if (winningRowsCountOpp>0) {
+        if (winningRowsCountOpp>1) {
+            NSLog(@"\n###Opponent managed to create a fork. AI Looses.\n");
+        }
+        NSLog(@"\n$$Block Opponent\n");
+        availableMoves = [self resetAvailableMovesForRows:winningRowsOpponent];
+        return [self playFromAvailableMoves:availableMoves];
+    }
+    NSLog(@"\n@@Strategize The Next Move\n");
+    return [self playNextMoveForOpponent:cell];
 }
 
-- (NSMutableArray *)resetAvailableMovesForWinningRows:(NSArray *)winningRows
+- (NSMutableArray *)resetAvailableMovesForRows:(NSArray *)winningRows
 {
     NSMutableArray *availableMoves = [NSMutableArray array];
     for (NSString *row in winningRows) {
@@ -103,77 +152,27 @@
     return availableMoves;
 }
 
-- (SymbolCell *)attemptWiningMove:(SymbolCell *)cell
-{
-    NSMutableArray *winningRow = [NSMutableArray array];
-    NSMutableArray *availableMoves = [NSMutableArray array];
-    NSArray *affectedRows = @[KeyRowBottom,KeyRowCenter,KeyRowDiagonal1,KeyRowDiagonal2,KeyRowLeft,KeyRowMiddle,KeyRowRight,KeyRowTop];
-    
-    for (NSString *row in affectedRows)
-    {
-        NSArray *cells = [self.board cellsForRow:row];
-        int markedCount = 0;
-        int availableCount = 0;
-        for (SymbolCell *cell in cells)
-        {
-            if ([cell isAvailable]) availableCount++;
-            if (cell.currentSymbol == self.mySymbol) {
-                markedCount++;
-            } else if ([cell isAvailable]) {
-                [availableMoves addObject:cell];
-            }
-        }
-        if (availableCount && markedCount>=2) {
-            [winningRow addObject:row];
-            break;
-        } else if (availableCount == 0){
-            NSLog(@"%@ is full",row);
-        } else {
-            [availableMoves removeAllObjects];
-        }
-    }
-    
-    if ([winningRow count]) {
-        return [self playWinningMoveFromAvailableMoves:availableMoves];
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"I Win!"
-//                                                        message:nil
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"OK"
-//                                              otherButtonTitles:nil];
-//        [alert show];
-    } else {
-        return [self evaluateCurrentMove:cell];
-    }
-    return nil;
-}
-
-- (SymbolCell *)playWinningMoveFromAvailableMoves:(NSArray *)cells
+- (SymbolCell *)playFromAvailableMoves:(NSArray *)cells
 {
     for (SymbolCell *cell in cells) {
         if ([cell isAvailable]) {
             return cell;
-//            [self mark:cell];
-//            break;
         }
     }
     return nil;
 }
 
-- (SymbolCell *)playNextMoveFromAvailableMoves:(NSArray *)availableMoves forCurrentMove:(SymbolCell *)cell
+- (SymbolCell *)playNextMoveForOpponent:(SymbolCell *)cell
 {
     //respond to a center opening with a corner
     if ([self.board isCenter:cell]) {
         SymbolCell *potentialMove = [self firstAvailableCorner];
         if ([potentialMove isAvailable]) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
         }
         potentialMove = [self firstAvailableEdge];
         if ([potentialMove isAvailable]) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
         }
     }
     
@@ -182,27 +181,19 @@
         SymbolCell *potentialMove = [self.board center];
         if ([potentialMove isAvailable]) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
         }
         potentialMove = [self.board oppositeCorner:cell];
         if ([potentialMove isAvailable]) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
-        } else if (potentialMove.currentSymbol == SymbolO) {
+        } else if (potentialMove.currentSymbol != self.mySymbol) {
             potentialMove = [self firstAvailableEdge];
             if ([potentialMove isAvailable]) {
                 return potentialMove;
-//                [self mark:potentialMove];
-//                return;
             }
         }
         potentialMove = [self firstAvailableCorner];
         if ([potentialMove isAvailable]) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
         }
     }
     
@@ -210,32 +201,14 @@
         SymbolCell *potentialMove = [self.board center];
         if ([potentialMove isAvailable]) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
         }
         potentialMove = [self availableNextCornerToCell:cell];
         if (potentialMove) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
         }
         potentialMove = [self.board oppositeEdge:cell];
         if (potentialMove) {
             return potentialMove;
-//            [self mark:potentialMove];
-//            return;
-        }
-    }
-    return nil;
-}
-
-- (SymbolCell *)playBlockingMoveFromAvailableMoves:(NSArray *)cells forCurrentMove:(SymbolCell *)cell
-{
-    for (SymbolCell *cell in cells) {
-        if ([cell isAvailable]) {
-            return cell;
-//            [self mark:cell];
-//            break;
         }
     }
     return nil;

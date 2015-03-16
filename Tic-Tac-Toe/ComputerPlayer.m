@@ -29,6 +29,11 @@
     return self;
 }
 
+-(void)cleanup
+{
+    [self.strategy cleanup];
+}
+
 -(void)takeTurn
 {
     SymbolCell *lastMove = nil;

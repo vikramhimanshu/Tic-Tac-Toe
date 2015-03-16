@@ -48,6 +48,7 @@
 
 - (void)start
 {
+    [self.playerComputer cleanup];
     [self.gameBoard display];
     self.currentPlayer = [self.gameSession lastWinner];
     self.shouldContinueGame = YES;
@@ -113,25 +114,11 @@
     }
 }
 
-//-(void)boardDidCompleteCheckWithAvailableMoves:(NSArray *)availableMoves
-//{
-//    
-//}
-//
-//-(void)boardDidDetectForkInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol
-//{
-//    
-//}
-//
-//-(void)boardDidDetectBlockInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol
-//{
-//    
-//}
-
 #pragma mark PlayerDelegate
 
 -(void)player:(id<PlayerProtocol>)player willMakeMove:(SymbolCell *)move
 {
+
     [self.gameBoard markCell:move withSymbol:player.symbol];
 }
 

@@ -67,13 +67,13 @@ NSString *const KeyRowDiagonal2 = @"KeyRowDiagonal2";
             }
         }
     }
-    NSLog(@"Cells:%@ forRowKey:%@",cells,rowKey);
+//    NSLog(@"Cells:%@ forRowKey:%@",cells,rowKey);
     return cells;
 }
 
 - (void)updateRowsArrayWith:(NSString *)rowsKey forCell:(SymbolCell *)cell
 {
-    NSLog(@"%d",cell.tag);
+//    NSLog(@"%d",cell.tag);
     NSMutableArray *rowsArray = [self.rowsForCell objectForKey:[NSString stringWithFormat:@"%d",cell.tag]];
     if (rowsArray) {
         [rowsArray addObject:rowsKey];
