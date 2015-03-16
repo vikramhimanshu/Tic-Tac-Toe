@@ -143,6 +143,7 @@
 				A3B617FF1AB3E7080005EF27 /* NSIndexPath+Compare.m */,
 				A3B618021AB4B8240005EF27 /* GameSession.h */,
 				A3B618031AB4B8240005EF27 /* GameSession.m */,
+				A3B6181F1AB567B80005EF27 /* GridProtocol.h */,
 				A3B618061AB4BB820005EF27 /* Grid.h */,
 				A3B618071AB4BB820005EF27 /* Grid.m */,
 				A3B6180B1AB544EF0005EF27 /* TicTacToeStrategy.h */,
@@ -154,7 +155,6 @@
 				A3B6181A1AB54CB20005EF27 /* Symbol.h */,
 				A3B6181B1AB550B90005EF27 /* ComputerPlayer.h */,
 				A3B6181C1AB550B90005EF27 /* ComputerPlayer.m */,
-				A3B6181F1AB567B80005EF27 /* GridProtocol.h */,
 				A3B618201AB6121B0005EF27 /* HumanPlayer.h */,
 				A3B618211AB6121B0005EF27 /* HumanPlayer.m */,
 			);

@@ -13,6 +13,8 @@
 @interface TicTacToeStrategy ()
 
 @property (nonatomic, strong) Board *board;
+@property Symbol opponenetSymbol;
+@property Symbol mySymbol;
 
 @end
 
@@ -27,8 +29,17 @@
     return self;
 }
 
+- (void)setPlayerSymbols:(Symbol)opponenet mySymbol:(Symbol)my
+{
+    self.opponenetSymbol = opponenet;
+    self.mySymbol = my;
+}
+
 - (SymbolCell *)nextMoveForCurrentOpponentMove:(SymbolCell *)cell
 {
+    if (cell == nil) { //Computer is playing first
+        [self.board center]; //open with center
+    }
     SymbolCell *nextMove = [self attemptWiningMove:cell];
     
     return nextMove;
@@ -47,7 +58,7 @@
         for (SymbolCell *cell in cells)
         {
             if ([cell isAvailable]) availableCount++;
-            if (cell.currentSymbol == SymbolO) {
+            if (cell.currentSymbol == self.opponenetSymbol) {
                 markedCount++;
             } else if ([cell isAvailable]) {
                 [availableMoves addObject:cell];
@@ -106,7 +117,7 @@
         for (SymbolCell *cell in cells)
         {
             if ([cell isAvailable]) availableCount++;
-            if (cell.currentSymbol == SymbolX) {
+            if (cell.currentSymbol == self.mySymbol) {
                 markedCount++;
             } else if ([cell isAvailable]) {
                 [availableMoves addObject:cell];
@@ -114,6 +125,7 @@
         }
         if (availableCount && markedCount>=2) {
             [winningRow addObject:row];
+            break;
         } else if (availableCount == 0){
             NSLog(@"%@ is full",row);
         } else {

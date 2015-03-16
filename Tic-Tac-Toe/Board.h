@@ -16,16 +16,23 @@
 @class Player;
 @class SymbolCell;
 
-@protocol BoardProtocol <NSObject>
+@protocol BoardDelegate <NSObject>
 
 - (void)boardWillChangeWithMove:(SymbolCell *)move;
 - (void)boardDidChangeWithMove:(SymbolCell *)move;
+- (void)boardDidDetectWinInRow:(NSString *)winningRow forSymbol:(Symbol)symbol;
+- (void)boardDidDetectDraw;
+
+@optional
+- (void)boardDidDetectForkInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol;
+- (void)boardDidDetectBlockInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol;
+- (void)boardDidCompleteCheckWithAvailableMoves:(NSArray *)availableMoves;
 
 @end
 
 @interface Board : NSObject <UICollectionViewDataSource, UICollectionViewDelegate, GridProtocol>
 
-@property (nonatomic, weak) id <BoardProtocol> delegate;
+@property (nonatomic, weak) id <BoardDelegate> delegate;
 
 @property (nonatomic, strong, readonly) NSArray *allCells;
 
@@ -34,8 +41,10 @@
 - (void)display;
 - (void)markCell:(SymbolCell *)cell withSymbol:(Symbol)symbol;
 
-+ (NSInteger)numberOfRows;
-+ (NSInteger)numberOfColumns;
+- (void)evaluateBoardForStatus;
+
+- (NSInteger)numberOfRows;
+- (NSInteger)numberOfColumns;
 
 @end
 

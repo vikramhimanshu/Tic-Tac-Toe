@@ -12,13 +12,15 @@
 #import "HumanPlayer.h"
 #import "GameSession.h"
 
-@interface Game () <BoardProtocol, PlayerDelegate>
+@interface Game () <BoardDelegate, PlayerDelegate>
 
 @property Board *gameBoard;
 
 @property (nonatomic, readwrite) ComputerPlayer *playerComputer;
 @property (nonatomic, readwrite) HumanPlayer *playerHuman;
 @property (nonatomic, readwrite) id <PlayerProtocol> currentPlayer;
+
+@property (nonatomic) BOOL shouldContinueGame;
 
 @property SymbolCell *lastMove;
 
@@ -48,19 +50,15 @@
 {
     [self.gameBoard display];
     self.currentPlayer = [self.gameSession lastWinner];
+    self.shouldContinueGame = YES;
+    if ([self.currentPlayer isEqual:self.playerComputer]) {
+        [self.playerComputer performSelector:@selector(takeTurn)
+                                  withObject:nil
+                                  afterDelay:0.5];
+    }
 }
 
 -(void)end
-{
-    
-}
-
--(Player *)checkWinStatus
-{
-    return nil;
-}
-
-- (void)evaluateGameState
 {
     
 }
@@ -74,30 +72,61 @@
     }
 }
 
-- (void)currentPlayerTakesTurn
-{
-    if ([self.currentPlayer conformsToProtocol:@protocol(PlayerProtocol)]) {
-        if ([self.currentPlayer respondsToSelector:@selector(takeTurn)]) {
-            [self.currentPlayer takeTurn];
-        }
-    }
-}
+#pragma mark BoardDelegate
 
 -(void)boardWillChangeWithMove:(SymbolCell *)move
 {
     self.lastMove = move;
-    [self.playerHuman takeTurn];
+    if ([self.currentPlayer isEqual:self.playerHuman] && self.shouldContinueGame) {
+        [self.playerHuman takeTurn];
+    }
 }
 
 -(void)boardDidChangeWithMove:(SymbolCell *)move
 {
-    [self evaluateGameState];
     [self swapPlayers];
     
-    if ([self.currentPlayer isEqual:self.playerComputer]) {
-        [self.playerComputer takeTurn];
+    if ([self.currentPlayer isEqual:self.playerComputer] && self.shouldContinueGame) {
+        [self.playerComputer performSelector:@selector(takeTurn)
+                                  withObject:nil
+                                  afterDelay:0.5];
     }
 }
+
+-(void)boardDidDetectWinInRow:(NSString *)winningRow forSymbol:(Symbol)symbol
+{
+    self.shouldContinueGame = NO;
+    if ([self.gameSession respondsToSelector:@selector(game:didEndWithStatus:winner:)]) {
+        if (self.playerComputer.symbol == symbol) {
+            [self.gameSession game:self didEndWithStatus:GameWin winner:self.playerComputer];
+        } else {
+            [self.gameSession game:self didEndWithStatus:GameWin winner:self.playerHuman];
+        }
+    }
+}
+
+-(void)boardDidDetectDraw
+{
+    self.shouldContinueGame = NO;
+    if ([self.gameSession respondsToSelector:@selector(game:didEndWithStatus:winner:)]) {
+        [self.gameSession game:self didEndWithStatus:GameDraw winner:nil];
+    }
+}
+
+//-(void)boardDidCompleteCheckWithAvailableMoves:(NSArray *)availableMoves
+//{
+//    
+//}
+//
+//-(void)boardDidDetectForkInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol
+//{
+//    
+//}
+//
+//-(void)boardDidDetectBlockInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol
+//{
+//    
+//}
 
 #pragma mark PlayerDelegate
 

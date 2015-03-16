@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Symbol.h"
+
 @class SymbolCell;
 @class Board;
 
@@ -15,5 +17,7 @@
 
 - (instancetype)initWithBoard:(Board *)board;
 - (SymbolCell *)nextMoveForCurrentOpponentMove:(SymbolCell *)cell;
+
+- (void)setPlayerSymbols:(Symbol)opponenet mySymbol:(Symbol)my;
 
 @end

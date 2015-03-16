@@ -19,6 +19,8 @@
 @property (nonatomic, strong) Grid *gameGrid;
 @property (nonatomic)  NSMutableArray *allCellsArray;
 
+@property (nonatomic)  NSMutableArray *rowsToCheck;
+
 @end
 
 @implementation Board
@@ -37,6 +39,8 @@
     if (self.gameGrid) {
         self.gameGrid = nil;
     }
+    [self.allCellsArray removeAllObjects];
+    [self.rowsToCheck removeAllObjects];
     [self.boardView reloadData];
 }
 
@@ -45,19 +49,19 @@
     return [self.allCellsArray copy];
 }
 
-+ (NSInteger)numberOfRows
+- (NSInteger)numberOfRows
 {
     return 3;
 }
 
-+ (NSInteger)numberOfColumns
+- (NSInteger)numberOfColumns
 {
     return 3;
 }
 
-+ (NSInteger)lastRowIndex
+- (NSInteger)lastRowIndex
 {
-    return ([Board numberOfColumns]*[Board numberOfRows])-1;
+    return ([self numberOfColumns]*[self numberOfRows])-1;
 }
 
 - (NSArray *)rowsForCellAtIndex:(NSInteger)idx
@@ -200,296 +204,39 @@
     return [self.gameGrid isEdge:cell];
 }
 
-//- (void)evaluateCurrentMove:(SymbolCell *)currentCell
-//{
-//    NSMutableArray *winningRow = [NSMutableArray array];
-//    NSMutableArray *availableMoves = [NSMutableArray array];
-//    NSArray *affectedRows = [self.gameGrid rowsForCellAtIndex:currentCell.tag];
-//    for (NSString *row in affectedRows)
-//    {
-//        NSArray *cells = [self.gameGrid cellsForRow:row];
-//        int markedCount = 0;
-//        int availableCount = 0;
-//        for (SymbolCell *cell in cells)
-//        {
-//            if ([cell isAvailable]) availableCount++;
-//            if (cell.currentSymbol == SymbolO) {
-//                markedCount++;
-//            } else if ([cell isAvailable]) {
-//                [availableMoves addObject:cell];
-//            }
-//        }
-//        if (markedCount>1) {
-//            if (markedCount == 3) {
-//                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"You Win!"
-//                                                                message:nil
-//                                                               delegate:nil
-//                                                      cancelButtonTitle:@"OK"
-//                                                      otherButtonTitles:nil];
-//                [alert show];
-//            } else if (availableCount) {
-//                [winningRow addObject:row];
-//            } else if (availableCount == 0){
-//                NSLog(@"%@ is full",row);
-//            }
-//        }
-//    }
-//    
-//    if ([winningRow count]) {
-//        availableMoves = [self resetAvailableMovesForWinningRows:winningRow];
-//        [self playBlockingMoveFromAvailableMoves:availableMoves forCurrentMove:currentCell];
-//    } else {
-//        [self playNextMoveFromAvailableMoves:availableMoves forCurrentMove:currentCell];
-//    }
-//}
-//
-//- (NSMutableArray *)resetAvailableMovesForWinningRows:(NSArray *)winningRows
-//{
-//    NSMutableArray *availableMoves = [NSMutableArray array];
-//    for (NSString *row in winningRows) {
-//        NSArray *cells = [self.gameGrid cellsForRow:row];
-//        for (SymbolCell *cell in cells) {
-//            if ([cell isAvailable]) {
-//                [availableMoves addObject:cell];
-//            }
-//        }
-//    }
-//    return availableMoves;
-//}
-//
-//- (void)attemptWiningMove:(SymbolCell *)cell
-//{
-//    NSMutableArray *winningRow = [NSMutableArray array];
-//    NSMutableArray *availableMoves = [NSMutableArray array];
-//    NSArray *affectedRows = @[KeyRowBottom,KeyRowCenter,KeyRowDiagonal1,KeyRowDiagonal2,KeyRowLeft,KeyRowMiddle,KeyRowRight,KeyRowTop];
-//    
-//    for (NSString *row in affectedRows)
-//    {
-//        NSArray *cells = [self.gameGrid cellsForRow:row];
-//        int markedCount = 0;
-//        int availableCount = 0;
-//        for (SymbolCell *cell in cells)
-//        {
-//            if ([cell isAvailable]) availableCount++;
-//            if (cell.currentSymbol == SymbolX) {
-//                markedCount++;
-//            } else if ([cell isAvailable]) {
-//                [availableMoves addObject:cell];
-//            }
-//        }
-//        if (availableCount && markedCount>=2) {
-//            [winningRow addObject:row];
-//        } else if (availableCount == 0){
-//            NSLog(@"%@ is full",row);
-//        } else {
-//            [availableMoves removeAllObjects];
-//        }
-//    }
-//    
-//    if ([winningRow count]) {
-//        [self playWinningMoveFromAvailableMoves:availableMoves];
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"I Win!"
-//                                                        message:nil
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"OK"
-//                                              otherButtonTitles:nil];
-//        [alert show];
-//    } else {
-//        [self evaluateCurrentMove:cell];
-//    }
-//}
-//
-//- (void)playWinningMoveFromAvailableMoves:(NSArray *)cells
-//{
-//    for (SymbolCell *cell in cells) {
-//        if ([cell isAvailable]) {
-//            [self mark:cell];
-//            break;
-//        }
-//    }
-//    return;
-//}
-//
-//- (void)playNextMoveFromAvailableMoves:(NSArray *)availableMoves forCurrentMove:(SymbolCell *)cell
-//{
-//    //respond to a center opening with a corner
-//    if ([self.gameGrid isCenter:cell]) {
-//        SymbolCell *potentialMove = [self firstAvailableCorner];
-//        if ([potentialMove isAvailable]) {
-//            [self mark:potentialMove];
-//            return;
-//        }
-//        potentialMove = [self firstAvailableEdge];
-//        if ([potentialMove isAvailable]) {
-//            [self mark:potentialMove];
-//            return;
-//        }
-//    }
-//
-//    //if the player plays corner; AI plays opposite corner
-//    if ([self.gameGrid isCorner:cell]) {
-//        SymbolCell *potentialMove = [self.gameGrid center];
-//        if ([potentialMove isAvailable]) {
-//            [self mark:potentialMove];
-//            return;
-//        }
-//        potentialMove = [self.gameGrid oppositeCorner:cell];
-//        if ([potentialMove isAvailable]) {
-//            [self mark:potentialMove];
-//            return;
-//        } else if (potentialMove.currentSymbol == SymbolO) {
-//            potentialMove = [self firstAvailableEdge];
-//            if ([potentialMove isAvailable]) {
-//                [self mark:potentialMove];
-//                return;
-//            }
-//        }
-//        potentialMove = [self firstAvailableCorner];
-//        if ([potentialMove isAvailable]) {
-//            [self mark:potentialMove];
-//            return;
-//        }
-//    }
-//
-//    if ([self.gameGrid isEdge:cell]) {
-//        SymbolCell *potentialMove = [self.gameGrid center];
-//        if ([potentialMove isAvailable]) {
-//            [self mark:potentialMove];
-//            return;
-//        }
-//        potentialMove = [self availableNextCornerToCell:cell];
-//        if (potentialMove) {
-//            [self mark:potentialMove];
-//            return;
-//        }
-//        potentialMove = [self.gameGrid oppositeEdge:cell];
-//        if (potentialMove) {
-//            [self mark:potentialMove];
-//            return;
-//        }
-//    }
-//}
-//
-//- (void)playBlockingMoveFromAvailableMoves:(NSArray *)cells forCurrentMove:(SymbolCell *)cell
-//{
-//    for (SymbolCell *cell in cells) {
-//        if ([cell isAvailable]) {
-//            [self mark:cell];
-//            break;
-//        }
-//    }
-//    return;
-//}
-//
-//- (SymbolCell *)availableNextCornerToCell:(SymbolCell *)cell
-//{
-//    SymbolCell *potentialMove = [self.gameGrid topCornerToEdge:cell];
-//    if ([potentialMove isAvailable]) {
-//        return potentialMove;
-//    }
-//    potentialMove = [self.gameGrid leftCornerToEdge:cell];
-//    if ([potentialMove isAvailable]) {
-//        return potentialMove;
-//    }
-//    potentialMove = [self.gameGrid rightCornerToEdge:cell];
-//    if ([potentialMove isAvailable]) {
-//        return potentialMove;
-//    }
-//    potentialMove = [self.gameGrid bottomCornerToEdge:cell];
-//    if ([potentialMove isAvailable]) {
-//        return potentialMove;
-//    }
-//    return nil;
-//}
-//
-//- (SymbolCell *)firstAvailableCorner
-//{
-//    SymbolCell *availableCorner = [self.gameGrid topLeftCorner];
-//    if ([availableCorner isAvailable]) {
-//        return availableCorner;
-//    }
-//    availableCorner = [self.gameGrid topRightCorner];
-//    if ([availableCorner isAvailable]) {
-//        return availableCorner;
-//    }
-//    availableCorner = [self.gameGrid bottomLeftCorner];
-//    if ([availableCorner isAvailable]) {
-//        return availableCorner;
-//    }
-//    availableCorner = [self.gameGrid bottomRightCorner];
-//    if ([availableCorner isAvailable]) {
-//        return availableCorner;
-//    }
-//    return nil;
-//}
-//
-//- (SymbolCell *)firstAvailableEdge
-//{
-//    SymbolCell *availableEdge = [self.gameGrid topEdge];
-//    if ([availableEdge isAvailable]) {
-//        return availableEdge;
-//    }
-//    availableEdge = [self.gameGrid leftEdge];
-//    if ([availableEdge isAvailable]) {
-//        return availableEdge;
-//    }
-//    availableEdge = [self.gameGrid bottomEdge];
-//    if ([availableEdge isAvailable]) {
-//        return availableEdge;
-//    }
-//    availableEdge = [self.gameGrid rightEdge];
-//    if ([availableEdge isAvailable]) {
-//        return availableEdge;
-//    }
-//    return nil;
-//}
-
 - (void)markCell:(SymbolCell *)cell withSymbol:(Symbol)symbol
 {
     [cell updateCellWithSymbol:symbol];
-    
-    if ([self.delegate respondsToSelector:@selector(boardDidChangeWithMove:)]) {
-        [self.delegate boardDidChangeWithMove:cell];
-    }
+    [self evaluateBoardForStatus];
+    [self boardDidChangeWithMove:cell];
 }
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     SymbolCell *cell = (SymbolCell *)[collectionView cellForItemAtIndexPath:indexPath];
-
-    if ([self.delegate respondsToSelector:@selector(boardWillChangeWithMove:)]) {
-        [self.delegate boardWillChangeWithMove:cell];
-    }
-//    if ([cell isAvailable] && !self.computerShouldPlay) {
-//        [cell updateCellWithSymbol:SymbolO];
-//        
-//        self.computerShouldPlay = YES;
-//        
-//        [self attemptWiningMove:cell];
-//
-//    } else {
-//        NSLog(@"Invalid Move");
-//    }
-//    
-//    self.isFirstMove = NO;
+    [self boardWillChangeWithMove:cell];
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSInteger rowCount = 0;
-    static NSInteger colCount = 0;
+    NSInteger colCount = 0;
     
     SymbolCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell"
                                                                  forIndexPath:indexPath];
     cell.tag = indexPath.item;
     
-    colCount = (indexPath.item % [Board numberOfColumns]);
+    colCount = (indexPath.item % [self numberOfColumns]);
     
     [cell initWithLocation:location(rowCount,colCount)];
     
     BOOL shouldIncrementRowCount = (colCount == 2);
     if (shouldIncrementRowCount) {
         rowCount++;
+    }
+    
+    if (indexPath.item == [self lastRowIndex]) {
+        rowCount = 0;
     }
 
     NSLog(@"{Row: %ld----Section: %ld}",(long)cell.location.row,(long)cell.location.section);
@@ -499,14 +246,17 @@
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return [Board numberOfRows]*[Board numberOfColumns];
+    return [self numberOfRows]*[self numberOfColumns];
 }
 
 -(void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([indexPath item] == [Board lastRowIndex]) {
+    if ([indexPath item] == [self lastRowIndex]) {
         self.gameGrid = [[Grid alloc] initWithCells:self.allCellsArray];
         [self.gameGrid create];
+        self.rowsToCheck = [@[KeyRowTop,KeyRowMiddle,KeyRowBottom,
+                             KeyRowLeft,KeyRowRight,KeyRowCenter,
+                             KeyRowDiagonal1,KeyRowDiagonal2] mutableCopy];
     }
 }
 
@@ -516,6 +266,121 @@
         _allCellsArray = [NSMutableArray array];
     }
     return _allCellsArray;
+}
+
+- (void)evaluateBoardForStatus
+{
+    NSMutableArray *winningRowsX = [NSMutableArray array];
+    NSMutableArray *winningRowsO = [NSMutableArray array];
+    NSMutableArray *availableMoves = [NSMutableArray array];
+    NSMutableArray *completedRows = [NSMutableArray array];
+    
+    for (NSString *row in self.rowsToCheck)
+    {
+        NSArray *cells = [self cellsForRow:row];
+        int markedCountX = 0;
+        int markedCountO = 0;
+        int availableCount = 0;
+        for (SymbolCell *cell in cells)
+        {
+            if (cell.currentSymbol == SymbolO) {
+                markedCountO++;
+            } else if (cell.currentSymbol == SymbolX) {
+                markedCountX++;
+            } else {
+                availableCount++;
+                [availableMoves addObject:cell];
+            }
+        }
+        if (availableCount) {
+            if (markedCountX>1) {
+                [winningRowsX addObject:row];
+            } else if (markedCountO>1) {
+                [winningRowsO addObject:row];
+            }
+        } else {
+            NSLog(@"%@ is full, removing it from the check",row);
+            [completedRows addObject:row];
+            if (markedCountO == 3) {
+                NSLog(@"SymbolO Wins");
+                [self boardDidDetectWinInRow:row forSymbol:SymbolO];
+                return;
+            } else if (markedCountX == 3) {
+                NSLog(@"SymbolX Wins");
+                [self boardDidDetectWinInRow:row forSymbol:SymbolX];
+                return;
+            }
+        }
+    }
+    
+    [self.rowsToCheck removeObjectsInArray:completedRows];
+    
+    if ([availableMoves count] == 0) {
+        [self boardDidDetectDraw];
+    }
+    
+    int winningRowsCountX = [winningRowsO count];
+    int winningRowsCountO = [winningRowsX count];
+    if (winningRowsCountO>0) {
+        NSLog(@"Fork detected for SymbolO");
+        [self boardDidDetectBlockInRows:winningRowsO forSymbol:SymbolO];
+        if (winningRowsCountO>1) {
+            [self boardDidDetectForkInRows:winningRowsO forSymbol:SymbolO];
+        }
+    } else if (winningRowsCountX>0) {
+        NSLog(@"Fork detected for SymbolX");
+        [self boardDidDetectBlockInRows:winningRowsX forSymbol:SymbolX];
+        if (winningRowsCountX>1) {
+            [self boardDidDetectForkInRows:winningRowsX forSymbol:SymbolX];
+        }
+    }
+    [self boardDidCompleteCheckWithAvailableMoves:availableMoves];
+}
+
+
+#pragma mark BoardDelegate
+
+- (void)boardWillChangeWithMove:(SymbolCell *)move
+{
+    if ([self.delegate respondsToSelector:@selector(boardWillChangeWithMove:)]) {
+        [self.delegate boardWillChangeWithMove:move];
+    }
+}
+- (void)boardDidChangeWithMove:(SymbolCell *)move
+{
+    if ([self.delegate respondsToSelector:@selector(boardDidChangeWithMove:)]) {
+        [self.delegate boardDidChangeWithMove:move];
+    }
+}
+- (void)boardDidDetectForkInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol
+{
+    if ([self.delegate respondsToSelector:@selector(boardDidDetectForkInRows:forSymbol:)]) {
+        [self.delegate boardDidDetectForkInRows:winningRows forSymbol:symbol];
+    }
+}
+- (void)boardDidDetectBlockInRows:(NSArray *)winningRows forSymbol:(Symbol)symbol
+{
+    if ([self.delegate respondsToSelector:@selector(boardDidDetectBlockInRows:forSymbol:)]) {
+        [self.delegate boardDidDetectBlockInRows:winningRows forSymbol:symbol];
+    }
+}
+- (void)boardDidDetectWinInRow:(NSString *)winningRow forSymbol:(Symbol)symbol
+{
+    if ([self.delegate respondsToSelector:@selector(boardDidDetectWinInRow:forSymbol:)]) {
+        [self.delegate boardDidDetectWinInRow:winningRow forSymbol:symbol];
+    }
+}
+- (void)boardDidDetectDraw
+{
+    if ([self.delegate respondsToSelector:@selector(boardDidDetectDraw)]) {
+        [self.delegate boardDidDetectDraw];
+    }
+}
+- (void)boardDidCompleteCheckWithAvailableMoves:(NSArray *)availableMoves
+{
+    if ([self.delegate respondsToSelector:@selector(boardDidCompleteCheckWithAvailableMoves:)]) {
+        [self.delegate boardDidCompleteCheckWithAvailableMoves:availableMoves];
+    }
 }
 
 @end

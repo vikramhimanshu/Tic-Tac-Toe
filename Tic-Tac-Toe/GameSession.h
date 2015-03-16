@@ -10,8 +10,11 @@
 
 @class Game;
 @protocol PlayerProtocol;
+@protocol GameDelegate;
 
 @interface GameSession : NSObject
+
+@property (nonatomic, weak) id <GameDelegate> delegate;
 
 @property id <PlayerProtocol> lastWinner;
 

@@ -14,9 +14,20 @@
 @class ComputerPlayer;
 @class GameSession;
 
+typedef enum : NSUInteger {
+    GameDraw,
+    GameWin
+} GameStatus;
+
+@protocol GameDelegate <NSObject>
+
+- (void)game:(Game *)game didEndWithStatus:(GameStatus)status winner:(id<PlayerProtocol>)player;
+
+@end
+
 @interface Game : NSObject
 
-@property (nonatomic, weak) GameSession *gameSession;
+@property (nonatomic, weak) GameSession <GameDelegate> *gameSession;
 
 @property (nonatomic, readonly) ComputerPlayer *playerComputer;
 @property (nonatomic, readonly) HumanPlayer *playerHuman;

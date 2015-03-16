@@ -18,7 +18,7 @@
 #import "Symbol.h"
 #import "TicTacToeStrategy.h"
 
-@interface ViewController ()
+@interface ViewController () <GameDelegate>
 
 @property (nonatomic,weak) IBOutlet BoardView *boardView;
 @property Board *boardViewDelegateDatasource;
@@ -38,18 +38,48 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    HumanPlayer *human = [[HumanPlayer alloc] init];
+    human.symbol = SymbolX;
+    
     TicTacToeStrategy *statergy = [[TicTacToeStrategy alloc] initWithBoard:self.boardViewDelegateDatasource];
-    ComputerPlayer *player1 = [[ComputerPlayer alloc] initWithStrategy:statergy];
-    player1.symbol = SymbolO;
+    ComputerPlayer *computer = [[ComputerPlayer alloc] initWithStrategy:statergy];
+    computer.symbol = SymbolO;
+    [statergy setPlayerSymbols:human.symbol mySymbol:computer.symbol];
     
-    HumanPlayer *player2 = [[HumanPlayer alloc] init];
-    player2.symbol = SymbolX;
-    
-    Game *game = [[Game alloc] initWithComputerPlayer:player1 andHuman:player2];
+    Game *game = [[Game alloc] initWithComputerPlayer:computer andHuman:human];
     [game setBoard:self.boardViewDelegateDatasource];
     
     self.gameSession = [[GameSession alloc] initWithGame:game];
+    self.gameSession.delegate = self;
     [self.gameSession newGame];
+}
+
+#pragma mark GameDelegate
+
+-(void)game:(Game *)game didEndWithStatus:(GameStatus)status winner:(id<PlayerProtocol>)player
+{
+    [self showAlertForStatus:status winner:player];
+}
+
+- (void)showAlertForStatus:(GameStatus)status winner:(id<PlayerProtocol>)player
+{
+    NSString *winnerTitle = nil;
+    if (status == GameWin) {
+        if ([player isKindOfClass:[ComputerPlayer class]]) {
+            winnerTitle = @"I Win!";
+        } else {
+            winnerTitle = @"You Win!";
+        }
+    } else {
+        winnerTitle = @"Game Draw, Try Again!";
+    }
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:winnerTitle
+                                                    message:nil
+                                                   delegate:nil
+                                          cancelButtonTitle:@"ok"
+                                          otherButtonTitles:nil];
+    [alert show];
 }
 
 - (IBAction)newGame:(UIButton *)btn

@@ -47,6 +47,43 @@ NSString *const KeyRowDiagonal2 = @"KeyRowDiagonal2";
     return self;
 }
 
+- (void)create
+{
+    for (NSString *key in [[self rows] allKeys]) {
+        [self.cellsForRows setObject:[self cellsForRows:key]
+                              forKey:key];
+    }
+}
+
+- (NSArray *)cellsForRows:(NSString *)rowKey
+{
+    NSMutableArray *cells = [NSMutableArray array];
+    NSArray *topRowLocations = [[self rows] objectForKey:rowKey];
+    for (NSIndexPath *loc in topRowLocations) {
+        for (SymbolCell *cell in self.allCells) {
+            if ([cell.location equal:loc]) {
+                [cells addObject:cell];
+                [self updateRowsArrayWith:rowKey forCell:cell];
+            }
+        }
+    }
+    NSLog(@"Cells:%@ forRowKey:%@",cells,rowKey);
+    return cells;
+}
+
+- (void)updateRowsArrayWith:(NSString *)rowsKey forCell:(SymbolCell *)cell
+{
+    NSLog(@"%d",cell.tag);
+    NSMutableArray *rowsArray = [self.rowsForCell objectForKey:[NSString stringWithFormat:@"%d",cell.tag]];
+    if (rowsArray) {
+        [rowsArray addObject:rowsKey];
+    } else {
+        rowsArray = [NSMutableArray arrayWithObject:rowsKey];
+    }
+    [self.rowsForCell setObject:rowsArray
+                         forKey:[NSString stringWithFormat:@"%d",cell.tag]];
+}
+
 - (NSArray *)cellsForRow:(NSString *)rowKey
 {
     return [self.cellsForRows objectForKey:rowKey];
@@ -299,43 +336,6 @@ NSString *const KeyRowDiagonal2 = @"KeyRowDiagonal2";
         return [self leftEdge];
     }
     return nil;
-}
-
-- (void)create
-{
-    for (NSString *key in [[self rows] allKeys]) {
-        [self.cellsForRows setObject:[self cellsForRows:key]
-                              forKey:key];
-    }
-}
-
-- (NSArray *)cellsForRows:(NSString *)rowKey
-{
-    NSMutableArray *cells = [NSMutableArray array];
-    NSArray *topRowLocations = [[self rows] objectForKey:rowKey];
-    for (NSIndexPath *loc in topRowLocations) {
-        for (SymbolCell *cell in self.allCells) {
-            if ([cell.location equal:loc]) {
-                [cells addObject:cell];
-                [self updateRowsArrayWith:rowKey forCell:cell];
-            }
-        }
-    }
-    NSLog(@"Cells:%@ forRowKey:%@",cells,rowKey);
-    return cells;
-}
-
-- (void)updateRowsArrayWith:(NSString *)rowsKey forCell:(SymbolCell *)cell
-{
-    NSLog(@"%d",cell.tag);
-    NSMutableArray *rowsArray = [self.rowsForCell objectForKey:[NSString stringWithFormat:@"%d",cell.tag]];
-    if (rowsArray) {
-        [rowsArray addObject:rowsKey];
-    } else {
-        rowsArray = [NSMutableArray arrayWithObject:rowsKey];
-    }
-    [self.rowsForCell setObject:rowsArray
-                         forKey:[NSString stringWithFormat:@"%d",cell.tag]];
 }
 
 #pragma mark Lazy Loading of properties
