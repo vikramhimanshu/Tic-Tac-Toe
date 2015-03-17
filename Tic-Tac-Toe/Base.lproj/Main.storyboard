@@ -21,7 +21,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QjX-xB-yCH" userLabel="Index">
                                 <rect key="frame" x="0.0" y="20" width="320" height="44"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Computer Uses:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rWB-Yh-W3V" userLabel="Player 1:">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Computer Uses:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rWB-Yh-W3V" userLabel="Player 1:">
                                         <rect key="frame" x="5" y="11" width="130" height="22"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="22" id="HwR-aj-6x4"/>
@@ -31,7 +31,7 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="O" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Yes-Hh-Idd">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="O" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Yes-Hh-Idd">
                                         <rect key="frame" x="111" y="1" width="42" height="42"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="42" id="XIT-4l-rdY"/>
@@ -41,7 +41,7 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Computer Uses:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r6L-vb-eHU" userLabel="Player 2:">
+                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Computer Uses:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r6L-vb-eHU" userLabel="Player 2:">
                                         <rect key="frame" x="167" y="11" width="118" height="22"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="118" id="OxY-ZD-I6x"/>
@@ -51,7 +51,7 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="O" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oId-pz-GvA">
+                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="O" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oId-pz-GvA">
                                         <rect key="frame" x="273" y="1" width="42" height="42"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="42" id="E5g-LD-iRx"/>
@@ -66,12 +66,14 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" id="7ZW-yX-JCy"/>
                                     <constraint firstAttribute="centerY" secondItem="Yes-Hh-Idd" secondAttribute="centerY" id="9bL-aM-luW"/>
+                                    <constraint firstItem="rWB-Yh-W3V" firstAttribute="leading" secondItem="QjX-xB-yCH" secondAttribute="leading" constant="5" id="G5g-nn-YTP"/>
                                     <constraint firstAttribute="centerY" secondItem="oId-pz-GvA" secondAttribute="centerY" id="GuL-J2-5IM"/>
                                     <constraint firstAttribute="centerY" secondItem="r6L-vb-eHU" secondAttribute="centerY" id="cRK-DU-9eU"/>
                                     <constraint firstAttribute="height" constant="44" id="d84-Yn-Rg9"/>
                                     <constraint firstItem="oId-pz-GvA" firstAttribute="leading" secondItem="r6L-vb-eHU" secondAttribute="trailing" constant="-12" id="g7b-7P-kXO"/>
                                     <constraint firstAttribute="centerY" secondItem="rWB-Yh-W3V" secondAttribute="centerY" id="pZd-Mv-QzZ"/>
                                     <constraint firstItem="Yes-Hh-Idd" firstAttribute="leading" secondItem="rWB-Yh-W3V" secondAttribute="trailing" constant="-24" id="tl9-vF-4Sr"/>
+                                    <constraint firstAttribute="trailing" secondItem="oId-pz-GvA" secondAttribute="trailing" constant="5" id="zVO-OE-nqX"/>
                                 </constraints>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="zl7-In-mmi" customClass="BoardView">
