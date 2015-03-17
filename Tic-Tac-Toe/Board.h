@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "GridProtocol.h"
-#import "Grid.h"
 #import "Symbol.h"
 
 @class BoardView;
@@ -30,7 +28,7 @@
 
 @end
 
-@interface Board : NSObject <UICollectionViewDataSource, UICollectionViewDelegate, GridProtocol>
+@interface Board : NSObject <UICollectionViewDataSource, UICollectionViewDelegate>
 
 @property (nonatomic, weak) id <BoardDelegate> delegate;
 
@@ -40,8 +38,6 @@
 
 - (void)display;
 - (void)markCell:(SymbolCell *)cell withSymbol:(Symbol)symbol;
-
-- (void)evaluateBoardForStatus;
 
 - (NSInteger)numberOfRows;
 - (NSInteger)numberOfColumns;

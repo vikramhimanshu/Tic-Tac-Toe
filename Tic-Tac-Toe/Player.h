@@ -32,7 +32,3 @@
 - (id<PlayerDelegate>)delegate;
 
 @end
-
-@interface Player : NSObject
-
-@end

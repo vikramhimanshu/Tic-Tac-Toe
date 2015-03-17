@@ -74,14 +74,14 @@ NSString *const KeyRowDiagonal2 = @"KeyRowDiagonal2";
 - (void)updateRowsArrayWith:(NSString *)rowsKey forCell:(SymbolCell *)cell
 {
 //    NSLog(@"%d",cell.tag);
-    NSMutableArray *rowsArray = [self.rowsForCell objectForKey:[NSString stringWithFormat:@"%d",cell.tag]];
+    NSMutableArray *rowsArray = [self.rowsForCell objectForKey:[NSString stringWithFormat:@"%ld",(long)cell.tag]];
     if (rowsArray) {
         [rowsArray addObject:rowsKey];
     } else {
         rowsArray = [NSMutableArray arrayWithObject:rowsKey];
     }
     [self.rowsForCell setObject:rowsArray
-                         forKey:[NSString stringWithFormat:@"%d",cell.tag]];
+                         forKey:[NSString stringWithFormat:@"%ld",(long)cell.tag]];
 }
 
 - (NSArray *)cellsForRow:(NSString *)rowKey
@@ -91,7 +91,7 @@ NSString *const KeyRowDiagonal2 = @"KeyRowDiagonal2";
 
 - (NSArray *)rowsForCellAtIndex:(NSInteger)idx
 {
-    return [self.rowsForCell objectForKey:[NSString stringWithFormat:@"%d",idx]];
+    return [self.rowsForCell objectForKey:[NSString stringWithFormat:@"%ld",(long)idx]];
 }
 
 //corners

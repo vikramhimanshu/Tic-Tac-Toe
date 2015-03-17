@@ -18,6 +18,8 @@
 
 @property (nonatomic, readwrite) ComputerPlayer *playerComputer;
 @property (nonatomic, readwrite) HumanPlayer *playerHuman;
+@property (nonatomic, readwrite) HumanPlayer *playerHuman2;
+
 @property (nonatomic, readwrite) id <PlayerProtocol> currentPlayer;
 
 @property (nonatomic) BOOL shouldContinueGame;
@@ -40,6 +42,18 @@
     return self;
 }
 
+- (instancetype)initWithPlayer:(HumanPlayer *)player1 secondPlayer:(HumanPlayer *)player2
+{
+    self = [super init];
+    if (self) {
+        self.playerHuman = player1;
+        self.playerHuman.delegate = self;
+        self.playerHuman2 = player2;
+        self.playerHuman2.delegate = self;
+    }
+    return self;
+}
+
 -(void)setBoard:(Board *)board
 {
     self.gameBoard = board;
@@ -50,13 +64,10 @@
 {
     [self.playerComputer cleanup];
     [self.gameBoard display];
-    self.currentPlayer = [self.gameSession lastWinner];
     self.shouldContinueGame = YES;
-    if ([self.currentPlayer isEqual:self.playerComputer]) {
-        [self.playerComputer performSelector:@selector(takeTurn)
-                                  withObject:nil
-                                  afterDelay:0.5];
-    }
+    
+    self.currentPlayer = [self.gameSession lastWinner];
+    [self.currentPlayer takeTurn];
 }
 
 -(void)end
@@ -64,12 +75,19 @@
     
 }
 
+- (BOOL)isSinglePlayerGame
+{
+    return [self.playerComputer isKindOfClass:[ComputerPlayer class]];
+}
+
 - (void)swapPlayers
 {
-    if (self.currentPlayer == self.playerHuman) {
-        self.currentPlayer = self.playerComputer;
+    if ([self isSinglePlayerGame]) {
+        self.currentPlayer = (self.currentPlayer == self.playerHuman)?
+                                                    self.playerComputer : self.playerHuman;
     } else {
-        self.currentPlayer = self.playerHuman;
+        self.currentPlayer = (self.currentPlayer == self.playerHuman)?
+                                                    self.playerHuman2 : self.playerHuman;
     }
 }
 
@@ -87,7 +105,7 @@
 {
     [self swapPlayers];
     
-    if ([self.currentPlayer isEqual:self.playerComputer] && self.shouldContinueGame) {
+    if ([self.currentPlayer isKindOfClass:[ComputerPlayer class]] && self.shouldContinueGame) {
         [self.playerComputer takeTurn];
     }
 }
@@ -116,8 +134,9 @@
 
 -(void)player:(id<PlayerProtocol>)player willMakeMove:(SymbolCell *)move
 {
-
-    [self.gameBoard markCell:move withSymbol:player.symbol];
+    if (move) {
+        [self.gameBoard markCell:move withSymbol:player.symbol];
+    }
 }
 
 -(SymbolCell *)lastMoveInGame

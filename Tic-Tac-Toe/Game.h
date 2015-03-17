@@ -34,6 +34,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, readonly) id <PlayerProtocol> currentPlayer;
 
 - (instancetype)initWithComputerPlayer:(ComputerPlayer *)computer andHuman:(HumanPlayer *)human;
+- (instancetype)initWithPlayer:(HumanPlayer *)player1 secondPlayer:(HumanPlayer *)player2;
 
 - (void)setBoard:(Board *)board;
 

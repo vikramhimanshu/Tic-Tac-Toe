@@ -49,7 +49,42 @@ static const NSInteger kSymbolO = 2;
     self.boardView.delegate = self.boardViewDelegateDatasource;
     self.boardView.dataSource = self.boardViewDelegateDatasource;
 
+    _computerSymbol = SymbolNone;
+    
     [self updateComputerSymbolLabel];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.boardView.hidden = YES;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    CGRect exitFrame = self.initialView.bounds;
+    exitFrame.origin.y = -CGRectGetHeight(self.initialView.bounds);
+    self.initialView.frame = exitFrame;
+
+    CGRect entryFrame = self.initialView.frame;
+    entryFrame.origin.y = 0;
+    [self animateInitialView:entryFrame completion:nil];
+}
+
+- (void) animateInitialView:(CGRect)entryExitFrame completion:(void (^)(BOOL finished))completion
+{
+    [UIView animateWithDuration:1.5
+                          delay:0
+                        options:UIViewAnimationOptionCurveEaseInOut
+                     animations:^{
+                         self.initialView.frame = entryExitFrame;
+                     } completion:^(BOOL finished) {
+                         if (completion) {
+                             completion(finished);
+                         }
+                     }];
 }
 
 #pragma mark GameDelegate
@@ -90,17 +125,12 @@ static const NSInteger kSymbolO = 2;
 - (IBAction)startGame:(id)sender {
     [self setup];
     
-    [UIView animateWithDuration:4.0 delay:0.2
-         usingSpringWithDamping:0.6 initialSpringVelocity:0.5
-                        options:UIViewAnimationOptionShowHideTransitionViews
-                     animations:^{
-                         CGRect exitFrame = self.initialView.bounds;
-                         exitFrame.origin.y = -CGRectGetHeight(self.initialView.bounds)*2;
-                         self.initialView.frame = exitFrame;
-                     }
-                     completion:^(BOOL finished) {
-                         [self.gameSession newGame];
-                     }];
+    CGRect exitFrame = self.initialView.bounds;
+    exitFrame.origin.y = -CGRectGetHeight(self.initialView.bounds);
+    [self animateInitialView:exitFrame completion:^(BOOL finished) {
+        self.boardView.hidden = NO;
+        [self.gameSession newGame];
+    }];
 }
 
 - (IBAction)symbolSelected:(UIButton *)sender {

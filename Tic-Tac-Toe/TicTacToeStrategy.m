@@ -8,7 +8,8 @@
 
 #import "TicTacToeStrategy.h"
 #import "SymbolCell.h"
-#import "Board.h"
+#import "Board+Grid.h"
+#import "RowKeys.h"
 
 @interface TicTacToeStrategy ()
 
@@ -117,8 +118,8 @@
 
     [self.rowsToCheck removeObjectsInArray:completedRows];
     
-    int winningRowsCountOpp = [winningRowsOpponent count];
-    int winningRowsCountAI = [winningRowsAI count];
+    NSInteger winningRowsCountOpp = [winningRowsOpponent count];
+    NSInteger winningRowsCountAI = [winningRowsAI count];
     if (winningRowsCountAI>0) {
         if (winningRowsCountAI>1) {
             NSLog(@"\n**AI managed to create a fork. Opponent Looses.\n");
